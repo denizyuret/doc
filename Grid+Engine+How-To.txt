@@ -1,0 +1,65 @@
+﻿Grid Engine How-To
+[ Queues ] [ Job Scripts ] [ SGE Script Options ] [ Parallel Environments ] [ Scratch Space ] [ Exclusive Scheduling ]
+
+Queues
+Lufer has three public queues:
+ 
+short.qfor jobs running less than 1 hour. It has one dedicated node and shares nodes with faculty owned queues (currently 4 nodes)medium.qfor jobs running less than 1 day. It has three dedicated nodes and shares four nodes with long.qlong.qfor jobs running more than 1 day. It has four dedicated nodes and shares four nodes with medium.qUsers don't explicitly specify which queue to use. They tell Sun Grid Engine (SGE) how much time they expect their job to take (see the h_rt option below) and SGE will schedule the job in the proper queue. 
+ 
+Users may use up to 32 slots in the medium queue, 24 slots in the long queue, and 32 slots in the medium and long queue combined. A slot is equal to one CPU core.
+ 
+Job Scripts
+ 
+To submit a job to the SGE engine, you must write a SGE job script. Job scripts are csh scripts (though you can change the script using the -S option). 
+ 
+Basic commands:
+qsub <job script>: submits a job
+qstat: status of jobs
+qdel <job id>: deletes a running job
+ 
+Sample script:
+ 
+#!/bin/bash
+ #$ -N job_name
+ #$ -S /bin/bash
+ #$ -q short.q
+ ##$ -l h_rt=00:30:00 #30 min run
+ #$ -pe smp 8 
+ #$ -cwd
+ #$ -o job_name.out
+ #$ -e job_name.err
+ #$ -M login_id@ku.edu.tr
+ #$ -m bea 
+ 
+ # We have a file named bigtest.m  
+ /share/apps/matlab/R2011a/bin/matlab -nojvm -nodisplay -r bigtest > output.txt
+This script will run a batch Matlab job using the Matlab code from file bigtest.m and directs the output to output.txt. The lines that begin with #$ are SGE options.
+Icon 
+Although the Matlab file name is bigtest.m, the -r option takes the name of the Matlab file to run (bigtest) without the extension.
+ 
+ 
+SGE Script Options
+
+-N namethe name of the job-S paththe script interpreter to use. -S /bin/bash will use bash instead of the default csh.-l resourcerequests a resource. In the script above, we are using -l h_rt. h_rt stands for "hard run time". It is specified as h_rt:HH:MM:SS (hours, minutes, seconds).
+The only resource we currently have configured is memory. That can be requested using the mf option, such as: -l mf=24000M or 
+-l h='!yunus-0-8'-pe <parallel environment> <number of slots>specifies the parallel environment to use. See the Parallel Environments section below.-cwdrun the script in the current directory-o paththe name of the file to send standard output. If this option isn't specified, job_name.o.job_id is used.-e paththe name of the file to send standard error. If this option isn't specified, job_name.e.job_id is used.-M userid@ku.edu.trsend notifications to this e-mail address-m b|e|a|s|nnotifications on different events: begin, end, abort, suspend, no mail (default) -j yes|nojoins the standard output and error into the same output file (specified by -o or job_name.o.job_id)
+Parallel Environments
+There are two parallel environments setup on Lufer.
+smpSMP/OpenMP/threaded programs running within a single node. Users can use up to 8 slots.mpichFor MPI jobs running across nodes. Users can use the maximum number of slots as specified above.Use the -pe option to specify the parallel environment to use along with the number of requested slots. Such as
+-pe smp 8
+-pe mpich 30
+ 
+Important
+Icon 
+Parallel environment options are cASe sEnSItIvE.
+When using MPI, SGE automatically creates a host file (the name of the hosts that have been allocated to jobs). The host file exists at $TMPDIR/machines.
+  
+Scratch Space
+By default, SGE creates a temp/scratch directory for each job in the local /scratch directory (with the name <job_id>.1.<queue>). You can use the $TMPDIR variable in your SGE scripts to get the name of the scratch directory. SGE will delete this directory when a job is completes. The local scratch directory provides 100GB of temp space for all jobs running on that node. If you need more than 100GB of space or you need to temp files to persist between jobs, you may use /mnt/scratch. /mnt/scratch provides 4TB of scratch for all the nodes. If you use this space, you are responsible for cleaning up your temp files. Please note that we will delete any files in /mnt/scratch that are over 30 day old.
+ 
+Exclusive Scheduling
+The exclusive scheduling feature allows a user to request that a job be given exclusive access to a specific host. This helps to guarantee predictable performance and to avoid interference when a job is not using all of the slots that are available on a host.
+To request that a job be given exclusive access to a host, type a command similar to the following:
+qsub -l excl=true pam_crash.sh
+This job will be dispatched only to hosts that have no other jobs running on.
+ 

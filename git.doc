@@ -1,0 +1,28 @@
+# To create a pull request, first fork a repository on github (which creates a copy under denizyuret)
+
+# https://help.github.com/articles/fork-a-repo/
+git clone git@github.com:denizyuret/CUDArt.jl.git
+git remote add upstream git@github.com:JuliaGPU/CUDArt.jl.git
+git remote -v
+
+# https://help.github.com/articles/syncing-a-fork/
+git fetch upstream
+git checkout master
+git merge upstream/master
+git push
+
+# https://help.github.com/articles/using-pull-requests/
+
+# http://yangsu.github.io/pull-request-tutorial/
+git checkout -b weakrefs
+git push origin weakrefs
+
+# http://www.jvandemo.com/a-simple-guide-to-semantic-versioning/
+git tag
+git tag -a v0.2.4 -m 'my version 0.2.4'
+git push origin --tags
+
+# http://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
+git checkout master
+git merge importblas
+git push
