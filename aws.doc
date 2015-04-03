@@ -1,0 +1,1 @@
+ssh -i .aws/california.pem ec2-user@ec2-54-153-40-108.us-west-1.compute.amazonaws.com
