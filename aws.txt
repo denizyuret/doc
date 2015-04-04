@@ -5,6 +5,10 @@ export AWS_SECRET_KEY=<look at credentials.csv>
 ec2-describe-instances
 ec2-describe-instances | grep running | awk '{print $5}'
 Need to create a security group with 9009-9099 free as well as ssh for julia.
+
+See:
 https://github.com/amitmurthy/AWS.jl
 https://groups.google.com/forum/#!msg/julia-dev/fuATZYYAYK8/Uv35d7sbiuoJ
 http://julialang.org/blog/2013/04/distributed-numerical-optimization/
+http://julia.readthedocs.org/en/latest/stdlib/parallel/#Base.addprocs
+julia/base/multi.jl
